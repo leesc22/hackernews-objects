@@ -1,3 +1,5 @@
+require 'byebug'
+
 class Post
 	attr_accessor :title, :url, :points, :item_id
 
@@ -6,16 +8,19 @@ class Post
 		@response = Nokogiri::HTML(open(url))
 		@title = extract_title(@response)
 		@points = extract_points(@response)
-		@item_id = extract_item_id(@response)
+		@item_id = extract_item_id(@response) 
+		@comments = []
+		extract_comments(@response)
 	end
 
 	# Returns all comments associated with a particular post
 	def comments
-		extract_comments(@response)
+		@comments
 	end
 
 	# Takes a Comment object as its input and adds it to the comment list
-	def add_comment
+	def add_comment(comment)
+		@comments << comment
 	end
 
 	private
@@ -40,7 +45,7 @@ class Post
 
 	def extract_comments(doc)
 		doc.search('.default').map do |div|
-			Comment.new(response = div)
+			self.add_comment(Comment.new(response = div))
     end
 	end
 end
